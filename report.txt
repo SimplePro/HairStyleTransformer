@@ -1,0 +1,3 @@
+1. CelebA(https://github.com/switchablenorms/CelebAMask-HQ) 데이터셋에 male을 분류해내기 위해 pre-trained된 gender classification 모델 다운로드 (https://github.com/ndb796/Face-Gender-Classification-PyTorch)
+2. male, mask, hair 데이터셋을 저장한다.
+3. label_frame.csv 파일을 수정한다.
