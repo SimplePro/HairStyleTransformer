@@ -1,13 +1,16 @@
-from torchvision.models import ResNet50_Weights, resnet50
-import torch.nn as nn
 import torch
+import torch.nn as nn
+from torch.nn.functional import softmax
+from torchvision.models import ResNet50_Weights, resnet50
+
 
 class SSL(nn.Module):
 
-    def __init__(self, n_classes):
+    def __init__(self, n_classes, temperature=1):
         super().__init__()
 
         self.n_classes = n_classes
+        self.temperature = temperature
 
         # input_shape: (3, 256, 256)
         self.features = nn.Sequential(
@@ -22,14 +25,14 @@ class SSL(nn.Module):
 
             nn.Linear(100, n_classes),
             nn.GELU(),
-
-            nn.Softmax(dim=1)
         ) # output shape: (n_classes)
 
 
     def forward(self, x):
         features = self.features(x)
         out = self.fc(features)
+        out /= self.temperature
+        out = softmax(out, dim=1)
         return out
     
 
