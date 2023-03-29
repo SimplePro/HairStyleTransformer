@@ -3,7 +3,7 @@
 3. label_frame.csv 파일을 수정한다.
 
 
---------------------- test1 ------------------------
+--------------------- test1 (03/29) ------------------------
 iter: 10/1000, labeled_loss: 0.8263, unlabeled_loss: 0.3520
 iter: 20/1000, labeled_loss: 0.7862, unlabeled_loss: 0.4517
 iter: 30/1000, labeled_loss: 0.7566, unlabeled_loss: 0.4814
