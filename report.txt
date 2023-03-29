@@ -1,3 +1,20 @@
 1. CelebA(https://github.com/switchablenorms/CelebAMask-HQ) 데이터셋에 male을 분류해내기 위해 pre-trained된 gender classification 모델 다운로드 (https://github.com/ndb796/Face-Gender-Classification-PyTorch)
 2. male, mask, hair 데이터셋을 저장한다.
 3. label_frame.csv 파일을 수정한다.
+
+
+--------------------- test1 ------------------------
+iter: 10/1000, labeled_loss: 0.8263, unlabeled_loss: 0.3520
+iter: 20/1000, labeled_loss: 0.7862, unlabeled_loss: 0.4517
+iter: 30/1000, labeled_loss: 0.7566, unlabeled_loss: 0.4814
+iter: 40/1000, labeled_loss: 0.7315, unlabeled_loss: 0.4889
+iter: 50/1000, labeled_loss: 0.7060, unlabeled_loss: 0.4967
+.
+.
+학습 초기부터 threshold를 넘기는 데이터의 개수는 batch_size와 거의 같았다.
+이런 경우에는 labeled_loss가 낮아지면, unlabeled_loss가 낮아져야 한다.
+하지만 학습 log를 지켜보면, labeled_loss가 낮아지는데, unlabeled_loss는 높아지고 있다.
+그래서 model이 weakly_augmented 데이터셋에 대해서 어떤 클래스를 예측하는지 확인해보았는데, 모두 2를 예측하고 있었다.
+강하게 2를 예측하면서 confidence는 threshold를 넘겼던 것이고,
+모델이 labeled_loss에 맞춰서 학습해갈수록 2가 아닌 클래스를 예측하려는 변화를 보여서 unlabeled_loss가 높아졌던 것이다.
+데이터의 불균형을 해결하는 과정을 추가해야 할 것이다.
