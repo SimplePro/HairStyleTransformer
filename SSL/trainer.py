@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
+import torchvision.transforms.functional as TF
 
 from glob import glob
 
@@ -19,6 +20,8 @@ from models import SSL
 import os
 
 from random import choices
+
+from utils import SSLDataset
 
 
 class SSLTrainer:
@@ -39,18 +42,20 @@ class SSLTrainer:
         self.device = device
 
         # labeled_dataset 불러오기
-        self.labeled_dataset = ImageFolder(labeled_dir,
-                                           transform=transforms.Compose([
-                                                transforms.Resize((256, 256)),
-                                                transforms.ToTensor()
-                                           ]))
+        self.labeled_dataset = SSLDataset(
+            dir_=labeled_dir,
+            transform_=transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.ToTensor()
+            ]))
 
         # unlabeled_dataset 불러오기
-        self.unlabeled_dataset = ImageFolder(unlabeled_dir,
-                                             transform=transforms.Compose([
-                                                transforms.Resize((256, 256)),
-                                                transforms.ToTensor()
-                                           ]))
+        self.unlabeled_dataset = ImageFolder(
+            unlabeled_dir,
+            transform=transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.ToTensor()
+            ]))
 
         self.weak_transform = weak_transform
         self.strong_transform = strong_transform
@@ -120,6 +125,7 @@ class SSLTrainer:
             condition = (torch.max(unlabeled_weak_pred, dim=1).values > self.threshold)
             unlabeled_loss = condition * unlabeled_loss # unlabeled_weak_pred의 confidence가 threshold보다 작으면 loss 계산안됨
             unlabeled_loss /= max(condition.sum(), 1) # unsupervised-loss 계산에 참여하는 element의 개수로 나눔. (평균 구하기)
+            unlabeled_loss = sum(unlabeled_loss)
 
             loss = labeled_loss + self.unlabeled_lambda * unlabeled_loss # 전체 loss 계산
 
@@ -133,7 +139,16 @@ class SSLTrainer:
             if (cur_iter+1) % log_iter == 0:
                 print(f"iter: {cur_iter+1}/{max_iter}, labeled_loss: %.4f, unlabeled_loss: %.4f"
                       % (sum(labeled_history)/len(labeled_history), sum(unlabeled_history)/len(unlabeled_history)),
-                      end="\n\n")
+                    #   end="\n\n"
+                )
+                print(torch.max(labeled_pred, dim=1)[1], torch.max(unlabeled_weak_pred, dim=1)[1])
+                
+                for i in range(len(labeled_x)):
+                    TF.to_pil_image(labeled_x[i].cpu()).save(f"./labeled_x{i}.jpg")
+                
+                for i in range(len(unlabeled_x)):
+                    TF.to_pil_image(self.weak_transform(unlabeled_x[i].cpu())).save(f"./unlabeled_x{i}.jpg")
+
 
 
 if __name__ == '__main__':
