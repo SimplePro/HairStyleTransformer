@@ -18,3 +18,11 @@ iter: 50/1000, labeled_loss: 0.7060, unlabeled_loss: 0.4967
 강하게 2를 예측하면서 confidence는 threshold를 넘겼던 것이고,
 모델이 labeled_loss에 맞춰서 학습해갈수록 2가 아닌 클래스를 예측하려는 변화를 보여서 unlabeled_loss가 높아졌던 것이다.
 데이터의 불균형을 해결하는 과정을 추가해야 할 것이다.
+
+
+--------------------------------------------------------------------------
+- forehead의 클래스 중 0과 1을 헷갈려 하는 것 같다.
+- FixMatch로 semi-supervised learning을 했을 때, 데이터의 수도 많이 부족하고, 0과 1의 차이도 크게 없어서 인공지능 학습이 어려운 것 같다.
+-> forehead 클래스의 0과 1을 합치자.
+-> labeled_dataset에 먼저 모델을 학습시킨 후에, unlabeled_dataset에도 학습을 시키자.
+-> pytorch-hair-segmentation 모델을 가져와서 transfer learning을 해도 좋을 것이다. (https://github.com/YBIGTA/pytorch-hair-segmentation)
