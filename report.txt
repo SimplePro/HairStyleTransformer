@@ -26,3 +26,26 @@ iter: 50/1000, labeled_loss: 0.7060, unlabeled_loss: 0.4967
 -> forehead 클래스의 0과 1을 합치자.
 -> labeled_dataset에 먼저 모델을 학습시킨 후에, unlabeled_dataset에도 학습을 시키자.
 -> pytorch-hair-segmentation 모델을 가져와서 transfer learning을 해도 좋을 것이다. (https://github.com/YBIGTA/pytorch-hair-segmentation)
+
+---------------------------- 5월 12일 ---------------------------
+- pytorch-hair-segmentation 모델의 pre-trained base network를 사용하여 모델 구조를 수정하였다.
+- FixMatch의 마지막 fc_layer 모델의 구조를 수정하였다.
+- trainer에서 unlabeled_lambda를 수정하였다. (원래는 constant였지만, 선형적으로 증가하도록 설계)
+-> 학습 초반에는 unlabeled_data가 혼동을 줄 수 있기 때문이라고 판단되었기 때문
+- labeled_data 중 class 0과 1이 사람이 봐도 구별하기 힘들정도로 labeling이 모호했기 때문에 통합하였다.
+-> 새로운 class 0: 기존의 class 0 + 기존의 class 1 / 새로운 class 1: 기존의 class2
+-> 실험 결과: 성능이 좀 더 좋아지기는 했지만, 기존의 class 1과 2를 결합하는 것도 해봐야 할 것 같음
+
+- 새로운 class 0: 기존의 class 0 / 새로운 class 1: 기존의 class 1 + 기존의 class 2
+-> 실험 결과: loss 자체는 낮지만, 예측하는 데이터가 전부 1임. 편향성이 아주 심각함.
+
+-> 다른 semi-supervised learning 기법을 활용할 수도 있음. (e.g. SimCLR)
+
+-> labeled_transform을 추가하고, weak_transform을 더 약하게 수정하였다. (몰랐는데, 실제 논문에서는 weak_transform을 horizontal_flip만 사용했다고 함)
+-> 모델 구조에 DropOut 추가함
+-> 특징을 추출하는 backbone의 learning_rate를 2배 늘렸다. (1e-4 -> 2e-4)
+-> batch_size를 16에서 32로 증가.
+-> 성능은 많이 개선되었다.
+
+-> stable diffusion 모델로 앞머리가 내린 남자 얼굴 이미지와 앞머리를 올린 남자 얼굴 이미지를 따로 생성해낼 수 있을 것이다.
+-> FFHQ 데이터셋을 추가해도 좋을 것이다.
