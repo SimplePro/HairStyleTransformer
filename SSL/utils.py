@@ -63,25 +63,32 @@ class SSLDataset(Dataset):
 
 if __name__ == '__main__':
 
-    ## ssl_dataset 추가
-    # # label_frame.csv 읽기
-    # label_frames = pd.read_csv("../dataset/label_frame.csv")
-    # label_array = label_frames.to_numpy().tolist()
+    # ssl_dataset 추가
+    # label_frame.csv 읽기
+    label_frames = pd.read_csv("../dataset/label_frame.csv")
+    label_array = label_frames.to_numpy().tolist()
 
-    # # hair_img를 label에 따라 분류하여 ssl_dataset에 추가
-    # for file, forehead, length in tqdm(label_array):
-    #     # hair_img 읽기
-    #     hair_img = Image.open(f"../dataset/hair/{file}")
+    # hair_img를 label에 따라 분류하여 ssl_dataset에 추가
+    for file, forehead, length in tqdm(label_array):
+        # # hair_img 읽기
+        # hair_img = Image.open(f"../dataset/hair/{file}")
 
-    #     # labeled data라면
-    #     if forehead in ["0", "1", "2"]:
-    #         hair_img.save(f"ssl_dataset/forehead/labeled/{forehead}/{file}") # 저장
+        # (실험) hair_img -> male_img 읽기
+        hair_img = Image.open(f"../dataset/male/{file}")
 
-    #     # unlabeled data라면
-    #     elif type(forehead) == float and np.isnan(forehead):
-    #         hair_img.save(f"ssl_dataset/forehead/unlabeled/{file}")
+        # labeled data라면
+        if forehead in ["0", "1", "2"]:
+            if forehead in ["1", "2"]:
+                hair_img.save(f"ssl_dataset/forehead/labeled/1/{file}") # 저장
+            
+            else:
+                hair_img.save(f"ssl_dataset/forehead/labeled/0/{file}") # 저장
 
-    #     # label이 -1인 datasample은 아예 사용하지 않음
+        # unlabeled data라면
+        elif type(forehead) == float and np.isnan(forehead):
+            hair_img.save(f"ssl_dataset/forehead/unlabeled/0/{file}")
+
+        # label이 -1인 datasample은 아예 사용하지 않음
 
     ssl_dataset = SSLDataset(dir_="./ssl_dataset/forehead/labeled/", transform_=transforms.Compose([]))
     print(ssl_dataset[-1])
